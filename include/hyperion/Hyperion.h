@@ -60,6 +60,7 @@ Q_DECLARE_LOGGING_CATEGORY(instance_update);
 class ImageProcessor;
 class LinearColorSmoothing;
 class Logger;
+class RGBBridgeEventFX;
 
 ///
 /// The main class of Hyperion. This gives other 'users' access to the attached LedDevice through
@@ -110,6 +111,8 @@ public:
 	QString getActiveDeviceType() const;
 
 public slots:
+	/// Trigger a local RGBBridge EventFX overlay. Empty result means success.
+	QString triggerRGBBridgeEventFX(const QJsonObject& command);
 
 	///
 	/// Performs the main output processing.
@@ -589,6 +592,11 @@ private:
 
 	/// The priority muxer
 	QSharedPointer<PriorityMuxer> _muxer;
+
+	/// RGBBridge overlays are composed over the selected priority without
+	/// becoming an input source themselves.
+	QScopedPointer<RGBBridgeEventFX> _rgbBridgeEventFX;
+	QScopedPointer<QTimer> _rgbBridgeEventFxTimer;
 
 	/// The actual LedDeviceWrapper
 	QSharedPointer<LedDeviceWrapper> _ledDeviceWrapper;

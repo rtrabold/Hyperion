@@ -1,0 +1,24 @@
+{
+	"type": "object",
+	"required": true,
+	"properties": {
+		"command": { "type": "string", "required": true, "enum": ["rgbeventfx"] },
+		"instance": {
+			"type": "array",
+			"items": { "type": "integer", "minimum": 0, "maximum": 254 },
+			"uniqueItems": true
+		},
+		"tan": { "type": "integer" },
+		"effect": { "type": "string" },
+		"duration": { "type": "integer" },
+		"brightness": { "type": "integer" },
+		"start": { "type": "integer" },
+		"count": { "type": "integer" },
+		"origin": { "type": "integer", "minimum": 0 },
+		"overlay": { "type": "boolean" },
+		"backgroundColor": { "type": "array", "items": { "type": "integer" } },
+		"options": { "type": "object", "additionalProperties": true },
+		"effects": { "type": "array", "items": { "type": "object", "additionalProperties": true } }
+	},
+	"additionalProperties": false
+}

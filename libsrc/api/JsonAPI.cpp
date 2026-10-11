@@ -12,6 +12,7 @@
 #include <QRegularExpression>
 #include <QStringList>
 #include <QEventLoop>
+#include <QThread>
 
 // project includes
 #include "hyperion/SettingsManager.h"
@@ -469,6 +470,9 @@ void JsonAPI::handleCommand(const JsonApiCommand& cmd, const QJsonObject &messag
 	case Command::Effect:
 		handleEffectCommand(message, cmd);
 	break;
+	case Command::RGBBridgeEventFX:
+		handleRGBBridgeEventFXCommand(message, cmd);
+	break;
 	case Command::CreateEffect:
 		handleCreateEffectCommand(message, cmd);
 	break;
@@ -539,6 +543,29 @@ void JsonAPI::handleCommand(const JsonApiCommand& cmd, const QJsonObject &messag
 	default:
 	break;
 	}
+}
+
+void JsonAPI::handleRGBBridgeEventFXCommand(const QJsonObject& message, const JsonApiCommand& cmd)
+{
+	QSharedPointer<Hyperion> hyperion = _hyperionWeak.toStrongRef();
+	if (hyperion.isNull())
+	{
+		sendErrorReply("No Hyperion instance is running", cmd);
+		return;
+	}
+
+	QString error;
+	if (hyperion->thread() == QThread::currentThread())
+	{
+		error = hyperion->triggerRGBBridgeEventFX(message);
+	}
+	else
+	{
+		QMetaObject::invokeMethod(hyperion.get(), "triggerRGBBridgeEventFX", Qt::BlockingQueuedConnection,
+			Q_RETURN_ARG(QString, error), Q_ARG(QJsonObject, message));
+	}
+	if (error.isEmpty()) sendSuccessReply(cmd);
+	else sendErrorReply(error, cmd);
 }
 
 void JsonAPI::handleGetImageSnapshotCommand(const QJsonObject& message, const JsonApiCommand &cmd)
