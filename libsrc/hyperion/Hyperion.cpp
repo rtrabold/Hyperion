@@ -26,6 +26,7 @@
 
 #include <hyperion/MultiColorAdjustment.h>
 #include <hyperion/LinearColorSmoothing.h>
+#include <hyperion/RGBBridgeEventFX.h>
 
 #if defined(ENABLE_EFFECTENGINE)
 // effect engine includes
@@ -63,6 +64,8 @@ Hyperion::Hyperion(quint8 instance, QObject* parent)
 	, _imageProcessor(nullptr)
 	, _raw2ledAdjustment(nullptr)
 	, _muxer(nullptr)
+	, _rgbBridgeEventFX(nullptr)
+	, _rgbBridgeEventFxTimer(nullptr)
 	, _ledDeviceWrapper(nullptr)
 	, _deviceSmooth(nullptr)
 	, _captureCont(nullptr)
@@ -122,6 +125,11 @@ void Hyperion::start()
 	_colorOrder = getSetting(settings::DEVICE).object()["colorOrder"].toString("rgb");
 
 	_muxer = MAKE_TRACKED_SHARED(PriorityMuxer, _hwLedCount, this);
+	_rgbBridgeEventFX.reset(new RGBBridgeEventFX());
+	_rgbBridgeEventFxTimer.reset(new QTimer());
+	_rgbBridgeEventFxTimer->setTimerType(Qt::PreciseTimer);
+	_rgbBridgeEventFxTimer->setInterval(25);
+	connect(_rgbBridgeEventFxTimer.get(), &QTimer::timeout, this, &Hyperion::update);
 
 	// connect Hyperion::update with Muxer visible priority changes as muxer updates independent
 	connect(_muxer.get(), &PriorityMuxer::visiblePriorityChanged, this, &Hyperion::update);
@@ -203,6 +211,8 @@ void Hyperion::stop(const QString name)
 	_BGEffectHandler->stop();
 
 	_captureCont->stop();
+	_rgbBridgeEventFxTimer->stop();
+	_rgbBridgeEventFX->clear();
 
 #if defined(ENABLE_BOBLIGHT_SERVER)
 	_boblightServer->stop();
@@ -801,6 +811,16 @@ void Hyperion::handleForceUpdate()
 	update();
 }
 
+QString Hyperion::triggerRGBBridgeEventFX(const QJsonObject& command)
+{
+	if (!_rgbBridgeEventFX) return QStringLiteral("RGBBridge EventFX is not initialized");
+	const QString error = _rgbBridgeEventFX->trigger(command, _hwLedCount);
+	if (!error.isEmpty()) return error;
+	if (!_rgbBridgeEventFxTimer->isActive()) _rgbBridgeEventFxTimer->start();
+	update();
+	return {};
+}
+
 void Hyperion::handleUpdate()
 {
 	do
@@ -832,10 +852,28 @@ void Hyperion::processUpdate()
 	{
 		ledColors = priorityInfo.ledColors;
 		if (ledColors.empty())
-		{		
-			TRACK_SCOPE_SUBCOMPONENT_CATEGORY(instance_update) << "Empty image and no LED colors provided - skip update";
-			return;
+		{
+			if (_rgbBridgeEventFX && _rgbBridgeEventFX->active())
+			{
+				// EventFX also works while Hyperion has no active priority. A black
+				// base is emitted on the final tick so the last event frame cannot stick.
+				ledColors.fill(ColorRgb::BLACK, _hwLedCount);
+			}
+			else
+			{
+				TRACK_SCOPE_SUBCOMPONENT_CATEGORY(instance_update) << "Empty image and no LED colors provided - skip update";
+				return;
+			}
 		}
+	}
+
+	if (_rgbBridgeEventFX && _rgbBridgeEventFX->apply(ledColors))
+	{
+		if (!_rgbBridgeEventFxTimer->isActive()) _rgbBridgeEventFxTimer->start();
+	}
+	else if (_rgbBridgeEventFxTimer && _rgbBridgeEventFxTimer->isActive())
+	{
+		_rgbBridgeEventFxTimer->stop();
 	}
 
 	emit rawLedColors(ledColors);

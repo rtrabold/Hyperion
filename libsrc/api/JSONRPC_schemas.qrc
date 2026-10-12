@@ -9,6 +9,7 @@
         <file alias="schema-clearall">JSONRPC_schema/schema-clearall.json</file>
         <file alias="schema-adjustment">JSONRPC_schema/schema-adjustment.json</file>
         <file alias="schema-effect">JSONRPC_schema/schema-effect.json</file>
+		<file alias="schema-rgbeventfx">JSONRPC_schema/schema-rgbeventfx.json</file>
         <file alias="schema-create-effect">JSONRPC_schema/schema-create-effect.json</file>
         <file alias="schema-delete-effect">JSONRPC_schema/schema-delete-effect.json</file>
         <file alias="schema-sourceselect">JSONRPC_schema/schema-sourceselect.json</file>

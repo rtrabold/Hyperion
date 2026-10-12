@@ -28,6 +28,7 @@ public:
 		LedDevice,
 		Logging,
 		Processing,
+		RGBBridgeEventFX,
 		ServerInfo,
 		Service,
 		SourceSelect,
@@ -59,6 +60,7 @@ public:
 		case LedDevice: return "leddevice";
 		case Logging: return "logging";
 		case Processing: return "processing";
+		case RGBBridgeEventFX: return "rgbeventfx";
 		case ServerInfo: return "serverinfo";
 		case SourceSelect: return "sourceselect";
 		case SysInfo: return "sysinfo";
@@ -341,6 +343,7 @@ public:
 			{ {"logging", "start"},                      { Command::Logging,        SubCommand::Start,                   Authorization::Yes,    InstanceCmd::No,           InstanceCmd::MustRun_No,     NoListenerCmd::Yes } },
 			{ {"logging", "stop"},                       { Command::Logging,        SubCommand::Stop,                    Authorization::Yes,    InstanceCmd::No,           InstanceCmd::MustRun_No,     NoListenerCmd::Yes } },
 			{ {"processing", ""},                        { Command::Processing,     SubCommand::Empty,                   Authorization::Yes,    InstanceCmd::Multi,        InstanceCmd::MustRun_Yes,    NoListenerCmd::Yes } },
+			{ {"rgbeventfx", ""},                        { Command::RGBBridgeEventFX,SubCommand::Empty,                   Authorization::Yes,    InstanceCmd::Single,       InstanceCmd::MustRun_Yes,    NoListenerCmd::Yes } },
 			{ {"serverinfo", ""},                        { Command::ServerInfo,     SubCommand::Empty,                   Authorization::Yes,    InstanceCmd::No_or_Single, InstanceCmd::MustRun_Yes,    NoListenerCmd::Yes } },
 			{ {"serverinfo", "getInfo"},                 { Command::ServerInfo,     SubCommand::GetInfo,                 Authorization::Yes,    InstanceCmd::No_or_Single, InstanceCmd::MustRun_No,     NoListenerCmd::Yes } },
 			{ {"serverinfo", "subscribe"},               { Command::ServerInfo,     SubCommand::Subscribe,               Authorization::Yes,    InstanceCmd::No_or_Single, InstanceCmd::MustRun_Yes,    NoListenerCmd::No  } },

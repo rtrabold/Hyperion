@@ -149,6 +149,9 @@ private:
 	///
 	void handleEffectCommand(const QJsonObject &message, const JsonApiCommand& cmd);
 
+	/// Trigger an RGBBridge EventFX overlay inside Hyperion.
+	void handleRGBBridgeEventFXCommand(const QJsonObject& message, const JsonApiCommand& cmd);
+
 	///
 	/// Handle an incoming JSON Effect message (Write JSON Effect)
 	///

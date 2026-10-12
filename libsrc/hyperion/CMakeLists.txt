@@ -21,6 +21,8 @@ add_library(hyperion
 	# Hyperion + Resources
 	${CMAKE_SOURCE_DIR}/include/hyperion/Hyperion.h
 	${CMAKE_SOURCE_DIR}/libsrc/hyperion/Hyperion.cpp
+	${CMAKE_SOURCE_DIR}/include/hyperion/RGBBridgeEventFX.h
+	${CMAKE_SOURCE_DIR}/libsrc/hyperion/RGBBridgeEventFX.cpp
 	${CMAKE_SOURCE_DIR}/libsrc/hyperion/resource.qrc
 	# Instance Manager
 	${CMAKE_SOURCE_DIR}/include/hyperion/HyperionIManager.h
